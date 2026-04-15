@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ADRIANFLIX</title>
+  <style>
+    :root {
+      --primary: #e50914;
+      --bg: #000000;
+      --sidebar-bg: #141414;
+      --card-bg: #222;
+      --text: #ffffff;
+      --text-dim: #b3b3b3;
+      --sidebar-width: 320px;
+      --focus-border: #ffffff;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background-color: var(--bg); color: var(--text);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .app-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100vw; height: 100vh;
+    }
+
+    .header {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: #000;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .logo-box h1 {
+      font-size: 20px; color: var(--primary); margin: 0;
+      font-weight: 900; letter-spacing: 1px;
+    }
+
+    .header-btns { display: flex; gap: 8px; }
+    .nav-btn {
+      background: #222; border: 1px solid transparent;
+      color: white; padding: 6px 12px; border-radius: 4px;
+      font-size: 12px; font-weight: bold; cursor: pointer;
+    }
+    .nav-btn.active { background: var(--primary); }
+    .nav-btn:focus { border-color: var(--focus-border); background: #444; }
+
+    .main-container {
+      display: flex; flex-grow: 1; overflow: hidden; padding: 0 12px 12px 12px; gap: 12px;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+      border: 1px solid #222;
+    }
+
+    .sidebar-top {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid #222;
+    }
+
+    .search-bar {
+      width: 100%; background: #000; border: 1px solid #333;
+      color: white; padding: 10px 12px; border-radius: 8px; font-size: 14px;
+    }
+    .search-bar:focus { border-color: var(--primary); }
+
+    .cat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .cat-list::-webkit-scrollbar { display: none; }
+
+    .cat-item {
+      background: #222;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #333;
+      color: var(--text-dim);
+      text-align: left;
+      width: 100%;
+    }
+    .cat-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .cat-item:focus { border-color: var(--focus-border); background: #333; }
+
+    .channel-grid {
+      flex-grow: 1; overflow-y: auto; padding: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .channel-card {
+      display: flex; align-items: center; gap: 12px; padding: 10px;
+      background: #1a1a1a; border-radius: 8px; cursor: pointer;
+      border: 1px solid #282828; transition: 0.2s;
+    }
+    .channel-card:focus { border-color: var(--focus-border); background: #252525; transform: scale(1.02); }
+    .channel-card.selected { border-left: 4px solid var(--primary); background: #222; }
+
+    .ch-logo { width: 40px; height: 40px; object-fit: contain; background: #000; border-radius: 4px; }
+    .ch-info { overflow: hidden; }
+    .ch-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ch-cat { font-size: 11px; color: var(--text-dim); }
+
+    .content-area { flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+
+    .video-box {
+      width: 100%; aspect-ratio: 16 / 9; background: #000;
+      border-radius: 12px; overflow: hidden; position: relative;
+      border: 1px solid #222;
+    }
+    .video-box:focus { border-color: var(--primary); }
+
+    #player { width: 100%; height: 100%; }
+
+    .info-panel {
+      background: var(--sidebar-bg); padding: 15px; border-radius: 12px;
+      display: flex; gap: 15px; align-items: center; border: 1px solid #222;
+    }
+    .info-logo { width: 60px; height: 60px; object-fit: contain; background: #000; border-radius: 8px; }
+    .info-text h2 { margin: 0 0 4px 0; font-size: 20px; }
+    .info-text p { margin: 0; color: var(--text-dim); font-size: 14px; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+    @media (max-width: 1024px) {
+      :root { --sidebar-width: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+  <header class="header">
+    <div class="logo-box">
+      <img src="logo.png" class="logo-img" onerror="this.style.display='none'">
+      <h1>ADRIANFLIX</h1>
+    </div>
+    <div class="header-btns">
+      <button id="btn-ar" class="nav-btn active" tabindex="1">🇦🇷 ARGENTINA</button>
+      <button id="btn-all" class="nav-btn" tabindex="2">🌎 TODOS</button>
+      <button id="btn-reload" class="nav-btn" tabindex="3">🔄 RECARGAR</button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <input type="text" id="search" class="search-bar" placeholder="Buscar canal..." tabindex="4">
+        <div id="categories" class="cat-list"></div>
+      </div>
+      <div id="list" class="channel-grid"></div>
+    </aside>
+
+    <section class="content-area">
+      <div class="video-box" id="v-container" tabindex="5">
+        <video id="player" controls autoplay playsinline crossorigin="anonymous"></video>
+      </div>
+      <div class="info-panel">
+        <img id="info-logo" src="logo.png" class="info-logo" onerror="this.src='logo.png'">
+        <div class="info-text">
+          <h2 id="info-name">ADRIANFLIX</h2>
+          <p id="info-desc">Selecciona un canal para comenzar</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const API_CH = 'https://iptv-org.github.io/api/channels.json';
+  const API_ST = 'https://iptv-org.github.io/api/streams.json';
+  const API_LG = 'https://iptv-org.github.io/api/logos.json';
+
+  let raw = [], filtered = [], current = null, onlyAR = true, cat = 'all';
+
+  const listEl = document.getElementById('list');
+  const catEl = document.getElementById('categories');
+  const searchEl = document.getElementById('search');
+  const player = document.getElementById('player');
+
+  async function init() {
+    try {
+      const [rC, rS, rL] = await Promise.all([fetch(API_CH), fetch(API_ST), fetch(API_LG)]);
+      const [dC, dS, dL] = await Promise.all([rC.json(), rS.json(), rL.json()]);
+
+      const streams = {}; dS.forEach(s => { if(!streams[s.channel]) streams[s.channel] = s.url; });
+      const logos = {}; dL.forEach(l => { if(!logos[l.channel]) logos[l.channel] = l.url; });
+
+      raw = dC.map(c => ({
+        ...c,
+        stream: streams[c.id],
+        logo: logos[c.id]
+      })).filter(c => c.stream && !c.is_nsfw && (c.country === 'AR' || (c.languages || []).includes('spa')))
+         .sort((a,b) => a.name.localeCompare(b.name));
+
+      renderCats();
+      update(true);
+    } catch (e) { console.error(e); }
+  }
+
+  function renderCats() {
+    const cats = ['all', ...new Set(raw.flatMap(c => c.categories || []))].slice(0, 20);
+    catEl.innerHTML = '';
+    cats.forEach((t, i) => {
+      const el = document.createElement('div');
+      el.className = `cat-item ${cat === t ? 'active' : ''}`;
+      el.textContent = t === 'all' ? 'Todas' : t;
+      el.tabIndex = 10 + i;
+      el.onclick = () => { cat = t; renderCats(); update(true); };
+      catEl.appendChild(el);
+    });
+  }
+
+  function update(auto = false) {
+    const q = searchEl.value.toLowerCase();
+    filtered = raw.filter(c => {
+      if (onlyAR && c.country !== 'AR') return false;
+      if (cat !== 'all' && !(c.categories || []).includes(cat)) return false;
+      return c.name.toLowerCase().includes(q);
+    });
+
+    listEl.innerHTML = '';
+    filtered.forEach((c, i) => {
+      const card = document.createElement('div');
+      card.className = `channel-card ${current?.id === c.id ? 'selected' : ''}`;
+      card.tabIndex = 100 + i;
+      card.innerHTML = `
+        <img class="ch-logo" src="${c.logo || 'logo.png'}" onerror="this.src='logo.png'">
+        <div class="ch-info">
+          <div class="ch-name">${c.name}</div>
+          <div class="ch-cat">${(c.categories || [])[0] || 'General'}</div>
+        </div>
+      `;
+      card.onclick = () => play(c);
+      listEl.appendChild(card);
+    });
+
+    if (auto && filtered.length > 0) play(filtered[0]);
+  }
+
+  function play(c) {
+    current = c;
+    document.querySelectorAll('.channel-card').forEach(el => el.classList.remove('selected'));
+    const cards = listEl.querySelectorAll('.channel-card');
+    const idx = filtered.findIndex(f => f.id === c.id);
+    if (idx !== -1) cards[idx].classList.add('selected');
+
+    player.src = c.stream;
+    player.play().catch(() => {});
+
+    document.getElementById('info-name').textContent = c.name;
+    document.getElementById('info-desc').textContent = (c.categories || []).join(' • ') || 'General';
+    document.getElementById('info-logo').src = c.logo || 'logo.png';
+  }
+
+  document.getElementById('btn-ar').onclick = function() { onlyAR = true; this.classList.add('active'); document.getElementById('btn-all').classList.remove('active'); update(true); };
+  document.getElementById('btn-all').onclick = function() { onlyAR = false; this.classList.add('active'); document.getElementById('btn-ar').classList.remove('active'); update(true); };
+  document.getElementById('btn-reload').onclick = () => location.reload();
+  searchEl.oninput = () => update(false);
+
+  document.addEventListener('keydown', (e) => {
+    const active = document.activeElement;
+    if (e.key === 'Enter') {
+      if (active.classList.contains('channel-card')) active.click();
+      if (active.classList.contains('cat-item')) active.click();
+      if (active.classList.contains('nav-btn')) active.click();
+      if (active.id === 'v-container') {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else active.requestFullscreen().catch(() => player.requestFullscreen());
+      }
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      if (active.classList.contains('nav-btn')) searchEl.focus();
+      else if (active === searchEl) (catEl.querySelector('.cat-item') || listEl.querySelector('.channel-card'))?.focus();
+      else if (active.classList.contains('cat-item')) listEl.querySelector('.channel-card')?.focus();
+      else if (active.classList.contains('channel-card')) active.nextElementSibling?.focus();
+    }
+    if (e.key === 'ArrowUp') {
+      if (active.classList.contains('channel-card')) {
+        if (active.previousElementSibling) active.previousElementSibling.focus();
+        else (catEl.querySelector('.cat-item.active') || catEl.querySelector('.cat-item'))?.focus();
+      } else if (active.classList.contains('cat-item')) searchEl.focus();
+      else if (active === searchEl) document.getElementById('btn-ar').focus();
+    }
+    if (e.key === 'ArrowRight') {
+      if (active.classList.contains('nav-btn')) active.nextElementSibling?.focus();
+      else if (active.classList.contains('cat-item')) active.nextElementSibling?.focus();
+      else if (active.classList.contains('channel-card') || active === searchEl) document.getElementById('v-container').focus();
+    }
+    if (e.key === 'ArrowLeft') {
+      if (active.classList.contains('nav-btn')) active.previousElementSibling?.focus();
+      else if (active.classList.contains('cat-item')) active.previousElementSibling?.focus();
+      else if (active.id === 'v-container') (listEl.querySelector('.channel-card.selected') || listEl.querySelector('.channel-card'))?.focus();
+    }
+    setTimeout(() => { if (document.activeElement.classList.contains('channel-card')) document.activeElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50);
+  });
+
+  init();
+</script>
+</body>
+</html>
